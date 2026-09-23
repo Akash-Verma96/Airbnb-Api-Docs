@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Airbnb Backend — API Docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0f1117;
+    --sidebar-bg: #13161e;
+    --surface: #1a1d27;
+    --surface2: #20232f;
+    --border: #2a2d3a;
+    --border2: #333649;
+    --text: #e2e4ef;
+    --text-muted: #7b7f9a;
+    --text-dim: #555876;
+    --accent: #6366f1;
+    --accent-soft: rgba(99,102,241,0.12);
+    --accent-glow: rgba(99,102,241,0.25);
+    --green: #22c55e;
+    --green-soft: rgba(34,197,94,0.12);
+    --red: #f87171;
+    --red-soft: rgba(248,113,113,0.12);
+    --orange: #fb923c;
+    --orange-soft: rgba(251,146,60,0.12);
+    --blue: #60a5fa;
+    --blue-soft: rgba(96,165,250,0.12);
+    --yellow: #fbbf24;
+    --yellow-soft: rgba(251,191,36,0.12);
+    --purple: #a78bfa;
+    --code-bg: #0c0e14;
+    --sidebar-width: 270px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.65;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #6366f1, #a78bfa);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .logo-text { font-weight: 700; font-size: 15px; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--text-muted); }
+
+  .sidebar-search {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-search input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 10px 7px 32px;
+    outline: none;
+    transition: border-color .15s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%237b7f9a' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8' stroke='%237b7f9a' stroke-width='2' fill='none'/%3E%3Cpath d='m21 21-4.35-4.35' stroke='%237b7f9a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+  }
+  .sidebar-search input::placeholder { color: var(--text-dim); }
+  .sidebar-search input:focus { border-color: var(--accent); }
+
+  .sidebar-nav { padding: 8px 0 24px; flex: 1; }
+  .nav-section { margin-bottom: 4px; }
+  .nav-section-label {
+    padding: 8px 16px 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all .12s;
+    border-radius: 0 4px 4px 0;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface); }
+  .nav-item.active { color: var(--accent); background: var(--accent-soft); border-left-color: var(--accent); font-weight: 500; }
+  .nav-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.5;
+    margin-left: auto;
+  }
+  .badge-get { background: var(--blue-soft); color: var(--blue); }
+  .badge-post { background: var(--green-soft); color: var(--green); }
+  .badge-patch { background: var(--yellow-soft); color: var(--yellow); }
+  .badge-delete { background: var(--red-soft); color: var(--red); }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    max-width: 860px;
+    padding: 48px 56px 80px;
+  }
+
+  /* ── CONTENT SECTIONS ── */
+  .doc-section {
+    margin-bottom: 64px;
+    scroll-margin-top: 24px;
+  }
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  h1 { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: 12px; }
+  h2 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 12px; margin-top: 48px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 16px; font-weight: 600; color: var(--text); margin: 28px 0 10px; }
+  p { color: var(--text-muted); margin-bottom: 12px; line-height: 1.7; max-width: 68ch; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── ENDPOINT CARD ── */
+  .endpoint-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 20px 0 36px;
+    overflow: hidden;
+  }
+  .endpoint-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .method-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 4px;
+    letter-spacing: .04em;
+    flex-shrink: 0;
+  }
+  .method-get { background: var(--blue-soft); color: var(--blue); }
+  .method-post { background: var(--green-soft); color: var(--green); }
+  .method-patch { background: var(--yellow-soft); color: var(--yellow); }
+  .method-delete { background: var(--red-soft); color: var(--red); }
+
+  .endpoint-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+  }
+  .endpoint-path .param { color: var(--orange); }
+  .endpoint-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .endpoint-body { padding: 16px 18px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tab-btn {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+    border-bottom: 2px solid transparent;
+    transition: all .12s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── PARAMS TABLE ── */
+  .params-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .params-table th {
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .params-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text-muted);
+  }
+  .params-table tr:last-child td { border-bottom: none; }
+  .param-name { font-family: 'JetBrains Mono', monospace; color: var(--text); font-size: 12.5px; }
+  .param-type { font-family: 'JetBrains Mono', monospace; color: var(--purple); font-size: 12px; }
+  .req-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .req-yes { background: var(--red-soft); color: var(--red); }
+  .req-no { background: var(--surface2); color: var(--text-dim); }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    position: relative;
+    margin: 10px 0;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.02);
+  }
+  .code-lang {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .copy-btn {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .12s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--border2); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+  pre {
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-track { background: transparent; }
+  pre::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* JSON syntax highlight */
+  .json-key { color: #7dd3fc; }
+  .json-str { color: #86efac; }
+  .json-num { color: #fca5a5; }
+  .json-bool { color: #fbbf24; }
+  .json-null { color: #94a3b8; }
+
+  /* ── RESPONSE CODES ── */
+  .response-list { display: flex; flex-direction: column; gap: 6px; }
+  .response-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--surface2);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .status-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .status-2xx { background: var(--green-soft); color: var(--green); }
+  .status-4xx { background: var(--orange-soft); color: var(--orange); }
+  .status-5xx { background: var(--red-soft); color: var(--red); }
+  .response-desc { color: var(--text-muted); line-height: 1.5; }
+
+  /* ── INFO CARDS ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .info-card-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .07em; font-weight: 600; margin-bottom: 5px; }
+  .info-card-value { font-size: 14px; font-weight: 600; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    overflow-x: auto;
+    white-space: pre;
+    margin: 12px 0;
+  }
+
+  /* ── ALERT ── */
+  .alert {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 12px 0;
+    border: 1px solid;
+  }
+  .alert-info { background: var(--blue-soft); border-color: rgba(96,165,250,.2); }
+  .alert-warn { background: var(--orange-soft); border-color: rgba(251,146,60,.2); }
+  .alert-note { background: var(--accent-soft); border-color: rgba(99,102,241,.2); }
+  .alert-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+
+  /* ── ARCH SECTION ── */
+  .service-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .service-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid;
+  }
+  .chip-hotel { background: var(--accent-soft); border-color: rgba(99,102,241,.3); color: var(--purple); }
+  .chip-booking { background: var(--green-soft); border-color: rgba(34,197,94,.3); color: var(--green); }
+  .chip-notif { background: var(--orange-soft); border-color: rgba(251,146,60,.3); color: var(--orange); }
+  .chip-auth { background: var(--blue-soft); border-color: rgba(96,165,250,.3); color: var(--blue); }
+
+  /* ── QUICK REF TABLE ── */
+  .quick-ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+  .quick-ref-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .quick-ref-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: middle;
+  }
+  .quick-ref-table td:first-child { width: 72px; }
+  .quick-ref-table td:nth-child(2) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+  .quick-ref-table tr:hover td { background: var(--surface); }
+
+  /* ── ENV TABLE ── */
+  .env-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+  .env-table th { text-align: left; padding: 7px 12px; background: var(--surface2); border: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); font-weight: 600; }
+  .env-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text-muted); }
+  .env-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--yellow); }
+  .env-table td:nth-child(2) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); width: 120px; }
+
+  /* ── DATA MODEL TABLE ── */
+  .model-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+  .model-table th { text-align: left; padding: 7px 12px; background: var(--surface2); border: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); font-weight: 600; }
+  .model-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+  .model-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); width: 160px; }
+  .model-table td:nth-child(2) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--purple); width: 120px; }
+
+  /* ── MOBILE ── */
+  .hamburger { display: none; position: fixed; top: 14px; left: 14px; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 8px; cursor: pointer; }
+  .hamburger span { display: block; width: 18px; height: 2px; background: var(--text-muted); margin: 3px 0; border-radius: 1px; }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); transition: transform .22s ease; }
+    .sidebar.open { transform: translateX(0); box-shadow: 8px 0 32px rgba(0,0,0,.5); }
+    .main { margin-left: 0; padding: 24px 20px 60px; }
+    .hamburger { display: block; }
+    h1 { font-size: 22px; }
+    .info-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+  /* inline code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: var(--orange);
+  }
+
+/* ── API CONSOLE ── */
+.api-console {
+  position: fixed; top: 20px; right: 20px; width: 360px; max-height: calc(100vh - 40px);
+  overflow-y: auto; z-index: 150; background: rgba(26,29,39,.96); backdrop-filter: blur(18px);
+  border: 1px solid var(--border2); border-radius: 14px; box-shadow: 0 18px 60px rgba(0,0,0,.35);
+  animation: consoleIn .45s ease both;
+}
+.api-console::-webkit-scrollbar { width: 5px; }
+.api-console::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 8px; }
+.console-head { display:flex; align-items:center; justify-content:space-between; padding:15px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(26,29,39,.98); z-index:2; }
+  .console-title { color: var(--text); }
+  [data-theme="light"] .console-head { background: rgba(255,255,255,.98); }
+  [data-theme="light"] .console-title { color: var(--text); }
+
+.console-title { display:flex; gap:9px; align-items:center; font-weight:700; font-size:14px; }
+.console-dot { width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green); }
+.console-close { border:1px solid var(--border); background:var(--surface2); color:var(--text-muted); border-radius:6px; cursor:pointer; padding:3px 8px; }
+.console-body { padding:15px; }
+.console-label { display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin:12px 0 6px; text-transform:uppercase; letter-spacing:.06em; }
+.console-input, .console-select, .console-textarea { width:100%; background:var(--code-bg); color:var(--text); border:1px solid var(--border); border-radius:7px; padding:9px 10px; font:12px 'JetBrains Mono',monospace; outline:none; }
+.console-input:focus, .console-select:focus, .console-textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+.console-textarea { min-height:105px; resize:vertical; }
+.console-url { display:flex; gap:7px; align-items:center; }
+.console-method { width:78px; font-weight:700; }
+.console-send { width:100%; margin-top:14px; border:0; border-radius:8px; padding:11px; color:white; background:linear-gradient(135deg,var(--accent),#8b5cf6); font-weight:700; cursor:pointer; transition:transform .15s, box-shadow .15s; }
+.console-send:hover { transform:translateY(-1px); box-shadow:0 8px 24px var(--accent-glow); }
+.console-send:disabled { opacity:.6; cursor:wait; }
+.console-response { margin-top:14px; border:1px solid var(--border); border-radius:8px; overflow:hidden; animation:responseIn .28s ease both; }
+.console-response-head { display:flex; justify-content:space-between; padding:9px 10px; background:var(--surface2); font-size:11px; font-weight:600; }
+.console-response.success { border-color:rgba(34,197,94,.55); }
+.console-response.error { border-color:rgba(239,68,68,.65); }
+.console-response.error .console-response-head { color:#fca5a5; }
+.console-response.success .console-response-head { color:#86efac; }
+.console-response pre { max-height:230px; overflow:auto; font-size:11px; white-space:pre-wrap; word-break:break-word; }
+.console-hint { color:var(--text-dim); font-size:11px; margin-top:8px; line-height:1.5; }
+.console-hidden { display:none!important; }
+@keyframes consoleIn { from { opacity:0; transform:translateY(14px) scale(.98); } to { opacity:1; transform:none; } }
+@keyframes responseIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@keyframes floatGlow { 0%,100% { box-shadow:0 0 0 rgba(139,92,246,0); } 50% { box-shadow:0 0 24px var(--accent-glow); } }
+.endpoint-card, .info-card, .section-head { animation:consoleIn .55s ease both; }
+.endpoint-card:hover, .info-card:hover { transform:translateY(-3px); transition:transform .22s ease, box-shadow .22s ease; box-shadow:0 12px 30px rgba(0,0,0,.18); }
+.console-dot { animation:floatGlow 2.4s ease-in-out infinite; }
+
+@media (min-width:1200px) { .main { max-width:calc(100% - 380px); } }
+@media (max-width:1199px) and (min-width:769px) { .api-console { width:320px; right:12px; } .main { padding-right:350px; max-width:none; } }
+@media (max-width:768px) { .api-console { top:auto; right:10px; bottom:10px; left:10px; width:auto; max-height:70vh; } .main { padding-bottom:80px; } }
+
+
+/* ── PREMIUM MOTION LAYER ── */
+:root{
+  --motion-ease:cubic-bezier(.22,1,.36,1);
+  --motion-fast:180ms;
+  --motion-med:520ms;
+}
+html{scroll-behavior:smooth}
+body{overflow-x:hidden}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:radial-gradient(520px circle at var(--mx,50%) var(--my,20%),rgba(111,132,255,.075),transparent 65%);
+  transition:background .18s ease;
+}
+#scroll-progress{
+  position:fixed;top:0;left:0;width:0;height:3px;z-index:10001;
+  background:linear-gradient(90deg,#8b5cf6,#38bdf8,#34d399);
+  box-shadow:0 0 18px rgba(56,189,248,.7);
+}
+.reveal{
+  opacity:0;transform:translateY(24px);
+  transition:opacity .75s var(--motion-ease),transform .75s var(--motion-ease);
+  transition-delay:var(--reveal-delay,0ms);
+}
+.reveal.is-visible{opacity:1;transform:none}
+.endpoint-card,.info-card,.flow-box,.alert,.code-block,.model-table,.params-table{
+  transition:transform .35s var(--motion-ease),box-shadow .35s ease,border-color .35s ease;
+}
+.endpoint-card:hover,.info-card:hover,.flow-box:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 42px rgba(0,0,0,.18),0 0 0 1px rgba(139,92,246,.12);
+}
+.endpoint-header{transition:background .25s ease}
+.endpoint-card:hover .endpoint-header{background:rgba(139,92,246,.045)}
+.nav-item{transition:color .2s ease,background .25s ease,transform .25s var(--motion-ease)}
+.nav-item:hover{transform:translateX(4px)}
+.logo-icon{animation:logoFloat 5s ease-in-out infinite}
+.console-dot{animation:consolePulse 2.4s ease-in-out infinite}
+.console-send{position:relative;overflow:hidden;transition:transform .25s var(--motion-ease),box-shadow .25s ease}
+.console-send:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(99,102,241,.28)}
+.console-send::after{
+  content:"";position:absolute;inset:0;transform:translateX(-110%);
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);
+  transition:transform .65s ease;
+}
+.console-send:hover::after{transform:translateX(110%)}
+.code-block{animation:softLift .7s var(--motion-ease) both}
+.divider{opacity:.55;transition:opacity .3s ease}
+.divider:hover{opacity:1}
+@keyframes logoFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(2deg)}}
+@keyframes consolePulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.35)}50%{box-shadow:0 0 0 7px rgba(52,211,153,0)}}
+@keyframes softLift{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+
+
+/* ── Refined premium interaction polish ── */
+/* Prevent the sidebar navigation from continuously shifting on hover. */
+.nav-item,
+.nav-item:hover,
+.nav-item.active {
+  transform: none !important;
+}
+.nav-item {
+  position: relative;
+  transition: color .22s ease, background .22s ease, border-color .22s ease;
+}
+.nav-item::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 2px;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  transition: transform .28s ease;
+  pointer-events: none;
+}
+.nav-item:hover::after,
+.nav-item.active::after {
+  transform: scaleX(1);
+}
+
+/* Premium, restrained hover treatment for API reference/content boxes. */
+.quick-ref-table,
+.code-block,
+.flow-box,
+.alert,
+.model-table,
+.params-table {
+  position: relative;
+  transition: transform .28s ease, box-shadow .28s ease,
+              border-color .28s ease, background .28s ease;
+}
+.quick-ref-table:hover,
+.code-block:hover,
+.flow-box:hover,
+.alert:hover,
+.model-table:hover,
+.params-table:hover {
+  transform: translateY(-2px);
+  border-color: rgba(139, 92, 246, .42);
+  box-shadow: 0 10px 28px rgba(0,0,0,.16),
+              0 0 0 1px rgba(139,92,246,.08);
+}
+.quick-ref-table tr {
+  transition: background .2s ease;
+}
+.quick-ref-table tr:hover td {
+  background: linear-gradient(90deg, rgba(139,92,246,.08), rgba(56,189,248,.035));
+}
+@media (prefers-reduced-motion: reduce) {
+  .quick-ref-table:hover,
+  .code-block:hover,
+  .flow-box:hover,
+  .alert:hover,
+  .model-table:hover,
+  .params-table:hover {
+    transform: none;
+  }
+}
+
+
+/* ── Final interaction fix: stable sidebar + premium API reference hover ── */
+.sidebar .nav-item,
+.sidebar .nav-item:hover,
+.sidebar .nav-item:focus-visible,
+.sidebar .nav-item.active {
+  animation: none !important;
+  transform: none !important;
+  translate: none !important;
+  will-change: auto !important;
+}
+.sidebar .nav-item {
+  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease !important;
+}
+.sidebar .nav-item:hover {
+  background: linear-gradient(90deg, rgba(139,92,246,.13), rgba(56,189,248,.045)) !important;
+  box-shadow: inset 3px 0 0 var(--accent), 0 4px 18px rgba(0,0,0,.08);
+}
+
+/* Premium API reference boxes: subtle lift, glow and animated accent line. */
+.quick-ref-table,
+.code-block,
+.flow-box,
+.model-table,
+.params-table {
+  overflow: hidden;
+  isolation: isolate;
+}
+.quick-ref-table::before,
+.code-block::before,
+.flow-box::before,
+.model-table::before,
+.params-table::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent), #38bdf8);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform .3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.quick-ref-table:hover,
+.code-block:hover,
+.flow-box:hover,
+.model-table:hover,
+.params-table:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 14px 36px rgba(0,0,0,.2), 0 0 24px rgba(139,92,246,.08) !important;
+}
+.quick-ref-table:hover::before,
+.code-block:hover::before,
+.flow-box:hover::before,
+.model-table:hover::before,
+.params-table:hover::before {
+  transform: scaleY(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .quick-ref-table:hover,
+  .code-block:hover,
+  .flow-box:hover,
+  .model-table:hover,
+  .params-table:hover {
+    transform: none !important;
+  }
+  .quick-ref-table::before,
+  .code-block::before,
+  .flow-box::before,
+  .model-table::before,
+  .params-table::before {
+    transition: none;
+  }
+}
+
+
+/* ── Sidebar hover stability patch ──
+   Keeps the original hover appearance without transform/shadow feedback loops. */
+.sidebar .nav-item,
+.sidebar .nav-item:hover,
+.sidebar .nav-item:focus-visible,
+.sidebar .nav-item.active {
+  animation: none !important;
+  transform: translate3d(0, 0, 0) !important;
+  scale: 1 !important;
+  rotate: 0deg !important;
+  translate: 0 0 !important;
+  will-change: auto !important;
+}
+.sidebar .nav-item {
+  transition: color .2s ease, background-color .2s ease !important;
+}
+.sidebar .nav-item:hover {
+  background: linear-gradient(90deg, rgba(139,92,246,.13), rgba(56,189,248,.045)) !important;
+  box-shadow: inset 3px 0 0 var(--accent), 0 4px 18px rgba(0,0,0,.08) !important;
+}
+.sidebar .nav-item::before,
+.sidebar .nav-item::after {
+  animation: none !important;
+  pointer-events: none !important;
+}
+
+/* ── Animated main heading ── */
+#overview > h1 {
+  display: inline-block;
+  background: linear-gradient(
+    110deg,
+    #f8fafc 0%,
+    #a5b4fc 22%,
+    #67e8f9 42%,
+    #c4b5fd 62%,
+    #f8fafc 82%,
+    #a5b4fc 100%
+  );
+  background-size: 240% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: headingColorShift 9s ease-in-out infinite;
+  will-change: background-position;
+}
+
+@keyframes headingColorShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #overview > h1 {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}
+
+
+  /* ── THEME SWITCHER ── */
+  [data-theme="light"] {
+    --bg: #f5f7fb;
+    --sidebar-bg: #ffffff;
+    --surface: #ffffff;
+    --surface2: #eef1f7;
+    --border: #dfe3ee;
+    --border2: #cbd2e1;
+    --text: #1b2233;
+    --text-muted: #667085;
+    --text-dim: #98a2b3;
+    --code-bg: #edf0f6;
+    --accent-soft: rgba(99,102,241,.10);
+    --accent-glow: rgba(99,102,241,.18);
+    --green-soft: rgba(34,197,94,.10);
+    --red-soft: rgba(248,113,113,.10);
+    --orange-soft: rgba(251,146,60,.10);
+    --blue-soft: rgba(96,165,250,.10);
+    --yellow-soft: rgba(251,191,36,.10);
+  }
+  .theme-toggle {
+    position: fixed;
+    top: 18px;
+    right: 390px;
+    z-index: 120;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,.14);
+    cursor: pointer;
+    font: 600 12px 'Inter', sans-serif;
+    transition: background .25s, border-color .25s, transform .25s;
+  }
+  .theme-toggle:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .theme-toggle-icon { font-size: 15px; line-height: 1; }
+  @media (max-width: 1100px) { .theme-toggle { right: 20px; top: 16px; } }
+  @media (max-width: 700px) { .theme-toggle { top: 12px; right: 12px; padding: 7px 10px; } }
+  [data-theme="light"] .theme-toggle { box-shadow: 0 8px 24px rgba(31,41,55,.10); }
+
+</style>
+</head>
+<body>
+
+<!-- Hamburger for mobile -->
+<button class="hamburger" id="hamburger" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+
+<!-- ── FIXED API CONSOLE ── -->
+<aside class="api-console" id="api-console" aria-label="API testing console">
+  <div class="console-head">
+    <div class="console-title"><span class="console-dot"></span> API Console</div>
+    <button class="console-close" id="console-toggle" aria-label="Close API console">×</button>
+  </div>
+  <div class="console-body" id="console-content">
+    <label class="console-label" for="console-endpoint">Endpoint</label>
+    <select class="console-select" id="console-endpoint"></select>
+    <label class="console-label">Request URL</label>
+    <div class="console-url">
+      <select class="console-select console-method" id="console-method" disabled></select>
+      <input class="console-input" id="console-url" placeholder="https://airbnb-auth.onrender.com/HotelService/api/v1/ping" />
+    </div>
+    <div id="console-fields"></div>
+    <label class="console-label" for="console-headers">Headers (JSON)</label>
+    <textarea class="console-textarea" id="console-headers">{ "Content-Type": "application/json" }</textarea>
+    <button class="console-send" id="console-send">Send Request ↗</button>
+    <div class="console-hint">Requests run from your browser. Set the correct service base URL and ensure CORS is enabled on your backend.</div>
+    <div class="console-response console-hidden" id="console-response">
+      <div class="console-response-head"><span>Response</span><span id="console-status"></span></div>
+      <pre id="console-result"></pre>
+    </div>
+  </div>
+</aside>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏨</div>
+    <div>
+      <div class="logo-text">Airbnb Backend</div>
+      <div class="logo-sub">API Reference v1</div>
+    </div>
+  </div>
+
+  <div class="sidebar-search">
+    <input type="text" id="search-input" placeholder="Search endpoints…" />
+  </div>
+
+  <nav class="sidebar-nav" id="nav">
+
+    <div class="nav-section">
+      <div class="nav-section-label">Getting Started</div>
+      <a class="nav-item active" href="#overview" onclick="setActive(this)">Overview</a>
+      <a class="nav-item" href="#architecture" onclick="setActive(this)">Architecture</a>
+      <a class="nav-item" href="#conventions" onclick="setActive(this)">Conventions</a>
+      <a class="nav-item" href="#errors" onclick="setActive(this)">Error Format</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Hotel Service · :3001</div>
+      <a class="nav-item" href="#hotel-health" onclick="setActive(this)">Health Check <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#hotel-create" onclick="setActive(this)">Create Hotel <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#hotel-list" onclick="setActive(this)">List Hotels <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#hotel-get" onclick="setActive(this)">Get Hotel <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#hotel-delete" onclick="setActive(this)">Delete Hotel <span class="nav-badge badge-delete">DEL</span></a>
+      <a class="nav-item" href="#hotel-patch" onclick="setActive(this)">Update Hotel <span class="nav-badge badge-patch">PATCH</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Room Endpoints</div>
+      <a class="nav-item" href="#rooms-available" onclick="setActive(this)">Available Rooms <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#rooms-update" onclick="setActive(this)">Update Rooms <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#rooms-generate" onclick="setActive(this)">Generate Rooms <span class="nav-badge badge-post">POST</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Scheduler</div>
+      <a class="nav-item" href="#sched-start" onclick="setActive(this)">Start Scheduler <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#sched-stop" onclick="setActive(this)">Stop Scheduler <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#sched-status" onclick="setActive(this)">Scheduler Status <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#sched-extend" onclick="setActive(this)">Manual Extend <span class="nav-badge badge-post">POST</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Booking Service · :3002</div>
+      <a class="nav-item" href="#booking-health" onclick="setActive(this)">Health Check <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#booking-create" onclick="setActive(this)">Create Booking <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#booking-confirm" onclick="setActive(this)">Confirm Booking <span class="nav-badge badge-post">POST</span></a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Notification Service</div>
+      <a class="nav-item" href="#notif" onclick="setActive(this)">Worker Overview</a>
+      <a class="nav-item" href="#notif-schema" onclick="setActive(this)">Queue Job Schema</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Reference</div>
+      <a class="nav-item" href="#data-models" onclick="setActive(this)">Data Models</a>
+      <a class="nav-item" href="#env-vars" onclick="setActive(this)">Environment Variables</a>
+      <a class="nav-item" href="#quick-ref" onclick="setActive(this)">Quick Reference</a>
+    </div>
+
+  </nav>
+</aside>
+
+
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false">
+  <span class="theme-toggle-icon" id="theme-icon">☀️</span>
+  <span id="theme-label">Light</span>
+</button>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- OVERVIEW -->
+  <section class="doc-section" id="overview">
+    <div class="section-eyebrow">API Reference</div>
+    <h1>Airbnb Backend Docs</h1>
+    <p>A production-style microservices backend for hotel inventory management, room booking, and transactional email notifications. Built with Node.js, TypeScript, Go, MySQL, Redis, and BullMQ.</p>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-label">Architecture</div>
+        <div class="info-card-value">Microservices</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Base Path</div>
+        <div class="info-card-value">/api/v1</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Auth</div>
+        <div class="info-card-value">None (v1)</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Response</div>
+        <div class="info-card-value">JSON</div>
+      </div>
+    </div>
+
+    <div class="service-chips">
+      <span class="service-chip chip-hotel">HotelService :3001</span>
+      <span class="service-chip chip-booking">BookingService :3002</span>
+      <span class="service-chip chip-notif">NotificationService (Worker)</span>
+      <span class="service-chip chip-auth">AuthInGo (Go)</span>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="doc-section" id="architecture">
+    <h2>Architecture</h2>
+    <p>Three independently deployable Node.js services communicate via HTTP (BookingService → HotelService) and an async BullMQ queue (BookingService → NotificationService via Redis).</p>
+
+    <div class="flow-box">┌───────────────────────────────────────┐
+│           Client Application          │
+└──────────────┬────────────────────────┘
+               │
+   ┌───────────┴───────────┐
+   │                       │
+┌──▼──────────────┐  ┌─────▼──────────────┐
+│  HotelService   │◄─│  BookingService     │
+│  Port: 3001     │  │  Port: 3002         │
+│  Sequelize+MySQL│  │  Prisma+MySQL       │
+└─────────────────┘  └────────┬───────────┘
+   │ BullMQ                   │ Redlock
+┌──▼──────────────┐  ┌────────▼───────────┐
+│ Redis + BullMQ  │  │  Redis (Redlock)    │
+└──────┬──────────┘  └────────────────────┘
+       │
+┌──────▼──────────┐  ┌────────────────────┐
+│ RoomGen Worker  │  │ NotificationService │
+└─────────────────┘  │ (Mailer Worker)     │
+                     └────────────────────┘</div>
+
+    <h3>Inter-Service Calls</h3>
+    <p>BookingService makes synchronous HTTP calls to HotelService during the booking flow using Axios. The base URL is configured via <code>HOTEL_SERVICE_URL</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">sequence — create booking</span></div>
+      <pre>Client → POST /booking
+  BookingService → acquire Redlock (hotel:&lt;id&gt;)
+  BookingService → GET /rooms/getAvailableRooms   (HotelService)
+  BookingService → INSERT Booking (PENDING)
+  BookingService → POST /rooms/update-rooms-id    (HotelService)
+  BookingService → release lock
+Client ← { bookingId, IdempotencyKey }
+
+Client → POST /booking/confirm/:key
+  BookingService → SELECT ... FOR UPDATE (idempotency row)
+  BookingService → UPDATE Booking SET status=CONFIRMED
+Client ← { bookingId, status: "CONFIRMED" }</pre>
+    </div>
+  </section>
+
+  <!-- CONVENTIONS -->
+  <section class="doc-section" id="conventions">
+    <h2>Global Conventions</h2>
+
+    <h3>Production Gateway Base URL</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">url</span></div>
+      <pre>https://airbnb-auth.onrender.com</pre>
+    </div>
+    <div class="alert alert-note">
+      <span class="alert-icon">🚀</span>
+      <span>API Console requests use the deployed AuthInGo gateway. Hotel routes use <code>/HotelService</code>, and Booking routes use <code>/BookingService</code>.</span>
+    </div>
+
+    <h3>Request Headers</h3>
+    <table class="params-table">
+      <thead><tr><th>Header</th><th>Value</th><th>Required</th></tr></thead>
+      <tbody>
+        <tr><td class="param-name">Content-Type</td><td class="param-type">application/json</td><td><span class="req-badge req-yes">Yes for POST/PATCH</span></td></tr>
+        <tr><td class="param-name">x-correlation-id</td><td class="param-type">uuid-string</td><td><span class="req-badge req-no">Optional</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Success Envelope</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>{
+  <span class="json-key">"message"</span>: <span class="json-str">"&lt;human-readable description&gt;"</span>,
+  <span class="json-key">"data"</span>: { ... },
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>
+}</pre>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ️</span>
+      <span>No authentication is required in v1. All endpoints are publicly accessible. No <code>Authorization</code> header is needed.</span>
+    </div>
+  </section>
+
+  <!-- ERRORS -->
+  <section class="doc-section" id="errors">
+    <h2>Error Format</h2>
+    <p>All errors are returned by the <code>genericErrorHandler</code> middleware.</p>
+
+    <h3>Generic Error</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>{
+  <span class="json-key">"success"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"error"</span>: <span class="json-str">"&lt;error message&gt;"</span>
+}</pre>
+    </div>
+
+    <h3>Validation Error (400)</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>{
+  <span class="json-key">"message"</span>: <span class="json-str">"Invalid request body"</span>,
+  <span class="json-key">"success"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"error"</span>: {
+    <span class="json-key">"issues"</span>: [
+      {
+        <span class="json-key">"code"</span>: <span class="json-str">"invalid_type"</span>,
+        <span class="json-key">"expected"</span>: <span class="json-str">"number"</span>,
+        <span class="json-key">"received"</span>: <span class="json-str">"undefined"</span>,
+        <span class="json-key">"path"</span>: [<span class="json-str">"userId"</span>],
+        <span class="json-key">"message"</span>: <span class="json-str">"User ID must be present"</span>
+      }
+    ]
+  }
+}</pre>
+    </div>
+
+    <h3>HTTP Status Codes</h3>
+    <div class="response-list">
+      <div class="response-item"><span class="status-code status-2xx">200</span><span class="response-desc">Successful GET / POST / PATCH operations</span></div>
+      <div class="response-item"><span class="status-code status-2xx">201</span><span class="response-desc">Hotel creation, room fetching (controller quirk)</span></div>
+      <div class="response-item"><span class="status-code status-2xx">202</span><span class="response-desc">Get all hotels, hotel update</span></div>
+      <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Zod validation failure · no available rooms · already-finalized idempotency key</span></div>
+      <div class="response-item"><span class="status-code status-4xx">404</span><span class="response-desc">Hotel / booking / idempotency key not found</span></div>
+      <div class="response-item"><span class="status-code status-4xx">409</span><span class="response-desc">Distributed lock already held (concurrent booking attempt)</span></div>
+      <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Unhandled service / database errors</span></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- HOTEL SERVICE -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="doc-section" id="hotel-health">
+    <div class="section-eyebrow">Hotel Service · Port 3001</div>
+    <h2>Health Check</h2>
+
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/ping</span>
+        <span class="endpoint-desc">Simple liveness probe</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'hs-health-resp')">Response</button>
+        </div>
+        <div class="tab-content active" id="hs-health-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">200 OK</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"pong"</span>, <span class="json-key">"success"</span>: <span class="json-bool">true</span> }</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREATE HOTEL -->
+  <section class="doc-section" id="hotel-create">
+    <h2>Create Hotel</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/hotels</span>
+        <span class="endpoint-desc">Creates a new hotel record. Validates via Zod <code>hotelSchema</code>.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'hc-body')">Body</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hc-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hc-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="hc-body">
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">name</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>Hotel name (min 1 char)</td></tr>
+              <tr><td class="param-name">address</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>Physical address</td></tr>
+              <tr><td class="param-name">location</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>City / region string</td></tr>
+              <tr><td class="param-name">rating</td><td class="param-type">number (float)</td><td><span class="req-badge req-no">No</span></td><td>Average star rating 0–5</td></tr>
+              <tr><td class="param-name">ratingCount</td><td class="param-type">number (int)</td><td><span class="req-badge req-no">No</span></td><td>Number of ratings received</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"name"</span>: <span class="json-str">"The Grand Horizon"</span>,
+  <span class="json-key">"address"</span>: <span class="json-str">"221B Baker Street, London, UK"</span>,
+  <span class="json-key">"location"</span>: <span class="json-str">"London"</span>,
+  <span class="json-key">"rating"</span>: <span class="json-num">4.7</span>,
+  <span class="json-key">"ratingCount"</span>: <span class="json-num">1240</span>
+}</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="hc-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">201 Created</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"message"</span>: <span class="json-str">"Hotel created Successfully!"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+    <span class="json-key">"name"</span>: <span class="json-str">"The Grand Horizon"</span>,
+    <span class="json-key">"address"</span>: <span class="json-str">"221B Baker Street, London, UK"</span>,
+    <span class="json-key">"location"</span>: <span class="json-str">"London"</span>,
+    <span class="json-key">"rating"</span>: <span class="json-num">4.7</span>,
+    <span class="json-key">"ratingCount"</span>: <span class="json-num">1240</span>,
+    <span class="json-key">"deletedAt"</span>: <span class="json-null">null</span>,
+    <span class="json-key">"createdAt"</span>: <span class="json-str">"2025-07-15T10:00:00.000Z"</span>,
+    <span class="json-key">"updatedAt"</span>: <span class="json-str">"2025-07-15T10:00:00.000Z"</span>
+  },
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>
+}</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="hc-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Missing required field or wrong type — Zod validation error body</span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIST HOTELS -->
+  <section class="doc-section" id="hotel-list">
+    <h2>List Hotels</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/hotels/getAllHotels</span>
+        <span class="endpoint-desc">Returns all hotels where <code>deletedAt IS NULL</code>. No pagination.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'hl-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hl-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="hl-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">202 Accepted</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"message"</span>: <span class="json-str">"Hotel Detail Found!"</span>,
+  <span class="json-key">"data"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+      <span class="json-key">"name"</span>: <span class="json-str">"The Grand Horizon"</span>,
+      <span class="json-key">"address"</span>: <span class="json-str">"221B Baker Street, London, UK"</span>,
+      <span class="json-key">"location"</span>: <span class="json-str">"London"</span>,
+      <span class="json-key">"rating"</span>: <span class="json-num">4.7</span>,
+      <span class="json-key">"ratingCount"</span>: <span class="json-num">1240</span>,
+      <span class="json-key">"deletedAt"</span>: <span class="json-null">null</span>,
+      <span class="json-key">"createdAt"</span>: <span class="json-str">"2025-07-15T10:00:00.000Z"</span>,
+      <span class="json-key">"updatedAt"</span>: <span class="json-str">"2025-07-15T10:00:00.000Z"</span>
+    }
+  ],
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>
+}</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="hl-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">404</span><span class="response-desc">No hotels in database — <code>"No Hotels found!"</code></span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GET HOTEL -->
+  <section class="doc-section" id="hotel-get">
+    <h2>Get Hotel by ID</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/hotels/<span class="param">:id</span></span>
+        <span class="endpoint-desc">Retrieves a single hotel by its primary key.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'hg-params')">Path Params</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hg-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hg-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="hg-params">
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">id</td><td class="param-type">number (int)</td><td><span class="req-badge req-yes">Yes</span></td><td>Hotel's auto-increment primary key</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-content" id="hg-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">200 OK</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Hotel found Successfully!"</span>, <span class="json-key">"data"</span>: { ... }, <span class="json-key">"success"</span>: <span class="json-bool">true</span> }</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="hg-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">404</span><span class="response-desc">Hotel with given ID does not exist</span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELETE HOTEL -->
+  <section class="doc-section" id="hotel-delete">
+    <h2>Delete Hotel</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-delete">DELETE</span>
+        <span class="endpoint-path">/api/v1/hotels/<span class="param">:id</span></span>
+        <span class="endpoint-desc">Soft-deletes by setting <code>deletedAt</code>. Record is NOT removed from the database.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'hd-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hd-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="hd-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">200 OK</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"message"</span>: <span class="json-str">"Hotel Deleted Successfully"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+    <span class="json-key">"deletedAt"</span>: <span class="json-str">"2025-07-20T14:22:00.000Z"</span>
+  },
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>
+}</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="hd-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">404</span><span class="response-desc">Hotel with given ID does not exist — <code>"No hotel found!"</code></span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PATCH HOTEL -->
+  <section class="doc-section" id="hotel-patch">
+    <h2>Update Hotel</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-patch">PATCH</span>
+        <span class="endpoint-path">/api/v1/hotels</span>
+        <span class="endpoint-desc">Updates the <code>name</code> of a hotel identified by <code>id</code> in the request body.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'hp-body')">Body</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hp-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'hp-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="hp-body">
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">id</td><td class="param-type">number (int)</td><td><span class="req-badge req-yes">Yes</span></td><td>Hotel's primary key</td></tr>
+              <tr><td class="param-name">name</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>New name to assign</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"id"</span>: <span class="json-num">1</span>, <span class="json-key">"name"</span>: <span class="json-str">"The Grand Horizon — Renovated"</span> }</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="hp-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">202 Accepted</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Hotel Updated Successfully"</span>, <span class="json-key">"data"</span>: [<span class="json-num">1</span>], <span class="json-key">"success"</span>: <span class="json-bool">true</span> }</pre>
+          </div>
+          <div class="alert alert-note">
+            <span class="alert-icon">💡</span>
+            <span><code>data</code> is the Sequelize <code>update()</code> return value — an array containing the number of affected rows.</span>
+          </div>
+        </div>
+        <div class="tab-content" id="hp-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Missing <code>id</code> or <code>name</code></span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- ROOM ENDPOINTS -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- AVAILABLE ROOMS -->
+  <section class="doc-section" id="rooms-available">
+    <div class="section-eyebrow">Hotel Service · Rooms</div>
+    <h2>Get Available Rooms</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/rooms/getAvailableRooms</span>
+        <span class="endpoint-desc">Returns rooms of a given category where <code>bookingId IS NULL</code> within the date range.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'ra-params')">Query Params</button>
+          <button class="tab-btn" onclick="switchTab(this, 'ra-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'ra-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="ra-params">
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">roomCategoryId</td><td class="param-type">string → number</td><td><span class="req-badge req-yes">Yes</span></td><td>Target room category</td></tr>
+              <tr><td class="param-name">checkInDate</td><td class="param-type">string (YYYY-MM-DD)</td><td><span class="req-badge req-yes">Yes</span></td><td>Start of stay</td></tr>
+              <tr><td class="param-name">checkOutDate</td><td class="param-type">string (YYYY-MM-DD)</td><td><span class="req-badge req-yes">Yes</span></td><td>End of stay</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">url — example</span></div>
+            <pre>GET /api/v1/rooms/getAvailableRooms?roomCategoryId=3&amp;checkInDate=2025-08-01&amp;checkOutDate=2025-08-05</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="ra-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">201 Created <span style="color:var(--text-dim);font-size:11px;">(controller quirk — uses CREATED for GET)</span></p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"message"</span>: <span class="json-str">"Rooms Fetched Successfully!"</span>,
+  <span class="json-key">"data"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-num">101</span>,
+      <span class="json-key">"hotelId"</span>: <span class="json-num">1</span>,
+      <span class="json-key">"roomCategoryId"</span>: <span class="json-num">3</span>,
+      <span class="json-key">"roomNo"</span>: <span class="json-num">201</span>,
+      <span class="json-key">"price"</span>: <span class="json-num">150.00</span>,
+      <span class="json-key">"dateOfAvailability"</span>: <span class="json-str">"2025-08-01T00:00:00.000Z"</span>,
+      <span class="json-key">"bookingId"</span>: <span class="json-null">null</span>,
+      <span class="json-key">"deletedAt"</span>: <span class="json-null">null</span>
+    }
+  ],
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>
+}</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="ra-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Missing or wrong-type query parameters</span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UPDATE ROOMS -->
+  <section class="doc-section" id="rooms-update">
+    <h2>Update Room Availability</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/rooms/update-rooms-id</span>
+        <span class="endpoint-desc">Associates a batch of rooms with a confirmed booking. Called internally by BookingService.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'ru-body')">Body</button>
+          <button class="tab-btn" onclick="switchTab(this, 'ru-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'ru-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="ru-body">
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">bookingId</td><td class="param-type">number (int)</td><td><span class="req-badge req-yes">Yes</span></td><td>The booking to link rooms to</td></tr>
+              <tr><td class="param-name">roomIds</td><td class="param-type">number[]</td><td><span class="req-badge req-yes">Yes</span></td><td>Array of room IDs to mark as booked</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"bookingId"</span>: <span class="json-num">42</span>, <span class="json-key">"roomIds"</span>: [<span class="json-num">101</span>, <span class="json-num">102</span>, <span class="json-num">103</span>] }</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="ru-resp">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Rooms updated Successfully!"</span>, <span class="json-key">"data"</span>: [<span class="json-num">3</span>], <span class="json-key">"success"</span>: <span class="json-bool">true</span> }</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="ru-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Missing <code>bookingId</code> or <code>roomIds</code></span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GENERATE ROOMS -->
+  <section class="doc-section" id="rooms-generate">
+    <h2>Generate Rooms (Async)</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/generateRooms</span>
+        <span class="endpoint-desc">Enqueues a BullMQ job to generate Room records for a RoomCategory across a date range. Also available at <code>/api/v1/hotels/generateRooms</code>.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'rg-body')">Body</button>
+          <button class="tab-btn" onclick="switchTab(this, 'rg-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'rg-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="rg-body">
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">roomCategoryId</td><td class="param-type">number (+)</td><td><span class="req-badge req-yes">Yes</span></td><td>—</td><td>Target room category ID</td></tr>
+              <tr><td class="param-name">startDate</td><td class="param-type">string (ISO 8601)</td><td><span class="req-badge req-yes">Yes</span></td><td>—</td><td>First date to generate availability for</td></tr>
+              <tr><td class="param-name">endDate</td><td class="param-type">string (ISO 8601)</td><td><span class="req-badge req-yes">Yes</span></td><td>—</td><td>Last date to generate availability for</td></tr>
+              <tr><td class="param-name">priceOverride</td><td class="param-type">number (+)</td><td><span class="req-badge req-no">No</span></td><td>Category price</td><td>Override price per night</td></tr>
+              <tr><td class="param-name">batchSize</td><td class="param-type">number (+)</td><td><span class="req-badge req-no">No</span></td><td>100</td><td>Records per DB batch insert</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"roomCategoryId"</span>: <span class="json-num">3</span>,
+  <span class="json-key">"startDate"</span>: <span class="json-str">"2025-09-01T00:00:00.000Z"</span>,
+  <span class="json-key">"endDate"</span>: <span class="json-str">"2025-09-30T23:59:59.000Z"</span>,
+  <span class="json-key">"priceOverride"</span>: <span class="json-num">175.00</span>,
+  <span class="json-key">"batchSize"</span>: <span class="json-num">50</span>
+}</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="rg-resp">
+          <div class="alert alert-info">
+            <span class="alert-icon">ℹ️</span>
+            <span>Job is enqueued asynchronously. This 200 response confirms acceptance, not that rooms have been created.</span>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Hotel Room updated Successfully"</span>, <span class="json-key">"data"</span>: {}, <span class="json-key">"success"</span>: <span class="json-bool">true</span> }</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="rg-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Validation failure (negative ID, invalid datetime)</span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Redis / BullMQ connection error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SCHEDULER -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <section class="doc-section" id="sched-start">
+    <div class="section-eyebrow">Hotel Service · Scheduler</div>
+    <h2>Scheduler Endpoints</h2>
+    <p>HotelService runs a <code>node-cron</code> job (default: <code>0 2 * * *</code> — 2 AM UTC) to extend room availability by one day for every room category. These endpoints manage it at runtime.</p>
+
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/scheduler/start</span>
+        <span class="endpoint-desc">Starts the cron scheduler. No-op if already running.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">json — 200 OK</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Room availability extension scheduler started successfully"</span>, <span class="json-key">"success"</span>: <span class="json-bool">true</span>, <span class="json-key">"data"</span>: { <span class="json-key">"status"</span>: <span class="json-str">"started"</span> } }</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="sched-stop">
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/scheduler/stop</span>
+        <span class="endpoint-desc">Stops the running cron scheduler and clears the internal task reference.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">json — 200 OK</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Room availability extension scheduler stopped successfully"</span>, <span class="json-key">"success"</span>: <span class="json-bool">true</span>, <span class="json-key">"data"</span>: { <span class="json-key">"status"</span>: <span class="json-str">"stopped"</span> } }</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="sched-status">
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/scheduler/status</span>
+        <span class="endpoint-desc">Returns whether the cron scheduler is currently active.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">json — 200 OK</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Scheduler status retrieved successfully"</span>, <span class="json-key">"success"</span>: <span class="json-bool">true</span>, <span class="json-key">"data"</span>: { <span class="json-key">"isRunning"</span>: <span class="json-bool">true</span> } }</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="sched-extend">
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/scheduler/extend</span>
+        <span class="endpoint-desc">Manually triggers the room availability extension logic. Useful for backfilling or testing.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">json — 200 OK</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"Manual room availability extension completed successfully"</span>, <span class="json-key">"success"</span>: <span class="json-bool">true</span>, <span class="json-key">"data"</span>: { <span class="json-key">"action"</span>: <span class="json-str">"manual_extension_completed"</span> } }</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- BOOKING SERVICE -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <section class="doc-section" id="booking-health">
+    <div class="section-eyebrow">Booking Service · Port 3002</div>
+    <h2>Health Check</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/ping</span>
+        <span class="endpoint-desc">Simple liveness probe</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">json — 200 OK</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>{ <span class="json-key">"message"</span>: <span class="json-str">"pong"</span>, <span class="json-key">"success"</span>: <span class="json-bool">true</span> }</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREATE BOOKING -->
+  <section class="doc-section" id="booking-create">
+    <h2>Create Booking (Phase 1)</h2>
+    <div class="alert alert-info">
+      <span class="alert-icon">🔒</span>
+      <span>Acquires a <strong>Redlock</strong> distributed lock on <code>hotel:&lt;hotelId&gt;</code> for the duration of this call. Lock TTL is set via <code>LOCK_TTL</code> env var (default 5000 ms).</span>
+    </div>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/booking</span>
+        <span class="endpoint-desc">Creates a PENDING booking, reserves room slots, and returns an idempotency key for confirmation.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'bc-body')">Body</button>
+          <button class="tab-btn" onclick="switchTab(this, 'bc-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'bc-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="bc-body">
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Constraint</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">userId</td><td class="param-type">number</td><td><span class="req-badge req-yes">Yes</span></td><td>integer</td><td>The user creating the booking</td></tr>
+              <tr><td class="param-name">hotelId</td><td class="param-type">number</td><td><span class="req-badge req-yes">Yes</span></td><td>integer</td><td>The hotel to book at</td></tr>
+              <tr><td class="param-name">roomCategoryId</td><td class="param-type">number</td><td><span class="req-badge req-yes">Yes</span></td><td>integer</td><td>Category of room to book</td></tr>
+              <tr><td class="param-name">totalGuests</td><td class="param-type">number</td><td><span class="req-badge req-yes">Yes</span></td><td>≥ 1</td><td>Number of guests</td></tr>
+              <tr><td class="param-name">bookingAmount</td><td class="param-type">number</td><td><span class="req-badge req-yes">Yes</span></td><td>&gt; 1</td><td>Total cost in base currency</td></tr>
+              <tr><td class="param-name">checkInDate</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>ISO 8601 date</td><td>Start date of stay</td></tr>
+              <tr><td class="param-name">checkOutDate</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>ISO 8601 date</td><td>End date of stay</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"userId"</span>: <span class="json-num">7</span>,
+  <span class="json-key">"hotelId"</span>: <span class="json-num">1</span>,
+  <span class="json-key">"roomCategoryId"</span>: <span class="json-num">3</span>,
+  <span class="json-key">"totalGuests"</span>: <span class="json-num">2</span>,
+  <span class="json-key">"bookingAmount"</span>: <span class="json-num">750</span>,
+  <span class="json-key">"checkInDate"</span>: <span class="json-str">"2025-09-10"</span>,
+  <span class="json-key">"checkOutDate"</span>: <span class="json-str">"2025-09-15"</span>
+}</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="bc-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">200 OK</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"bookingId"</span>: <span class="json-num">42</span>,
+  <span class="json-key">"IdempotencyKey"</span>: <span class="json-str">"b3f2a1c0-4d5e-6f7a-8b9c-0d1e2f3a4b5c"</span>
+}</pre>
+          </div>
+          <table class="params-table" style="margin-top:10px">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">bookingId</td><td class="param-type">number</td><td>Newly-created booking primary key</td></tr>
+              <tr><td class="param-name">IdempotencyKey</td><td class="param-type">string (UUID v4)</td><td>Must be used within the TTL window to confirm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-content" id="bc-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Zod validation failure</span></div>
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">No available rooms for the date range — <code>"No rooms available for given dates"</code></span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Redlock already held (concurrent booking) — <code>"Error already lock acquired by other person."</code></span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">HotelService unreachable (Axios error)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRM BOOKING -->
+  <section class="doc-section" id="booking-confirm">
+    <h2>Confirm Booking (Phase 2)</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/v1/booking/confirm/<span class="param">:idempotencyKey</span></span>
+        <span class="endpoint-desc">Transitions booking from <code>PENDING</code> → <code>CONFIRMED</code> using a Prisma interactive transaction with <code>SELECT ... FOR UPDATE</code> row lock.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'bconf-params')">Path Params</button>
+          <button class="tab-btn" onclick="switchTab(this, 'bconf-resp')">Response</button>
+          <button class="tab-btn" onclick="switchTab(this, 'bconf-errors')">Errors</button>
+        </div>
+        <div class="tab-content active" id="bconf-params">
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">idempotencyKey</td><td class="param-type">string (UUID v4)</td><td><span class="req-badge req-yes">Yes</span></td><td>Key returned from <code>POST /api/v1/booking</code></td></tr>
+            </tbody>
+          </table>
+          <div class="alert alert-warn">
+            <span class="alert-icon">⚠️</span>
+            <span>Duplicate confirmation requests on a finalized key return <code>400 — "Idempotency key already finalized"</code>. This prevents double-confirms.</span>
+          </div>
+        </div>
+        <div class="tab-content" id="bconf-resp">
+          <p style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">200 OK</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{ <span class="json-key">"bookingId"</span>: <span class="json-num">42</span>, <span class="json-key">"status"</span>: <span class="json-str">"CONFIRMED"</span> }</pre>
+          </div>
+        </div>
+        <div class="tab-content" id="bconf-errors">
+          <div class="response-list">
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Invalid UUID format for <code>idempotencyKey</code></span></div>
+            <div class="response-item"><span class="status-code status-4xx">400</span><span class="response-desc">Idempotency key already finalized (duplicate confirm)</span></div>
+            <div class="response-item"><span class="status-code status-4xx">404</span><span class="response-desc">Idempotency key not found in database</span></div>
+            <div class="response-item"><span class="status-code status-5xx">500</span><span class="response-desc">Database transaction error</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- NOTIFICATION SERVICE -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <section class="doc-section" id="notif">
+    <div class="section-eyebrow">Notification Service · Background Worker</div>
+    <h2>Worker Overview</h2>
+    <div class="alert alert-note">
+      <span class="alert-icon">📭</span>
+      <span>The NotificationService does <strong>not</strong> expose public-facing HTTP API endpoints. It is a background worker that consumes BullMQ jobs from Redis and sends transactional emails via Nodemailer + Handlebars.</span>
+    </div>
+
+    <div class="flow-box">BookingService ──► Redis (mailer-queue)
+                           │
+              NotificationService Worker
+                           │
+                  renderMailTemplate()  ← Handlebars (.hbs)
+                           │
+                    nodemailer.sendMail()
+                           │
+                    SMTP (Gmail / custom)</div>
+
+    <h3>Worker Behaviour</h3>
+    <table class="params-table">
+      <thead><tr><th>Event</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td class="param-name">Job "payload:mail" received</td><td>Render Handlebars template → send via Nodemailer</td></tr>
+        <tr><td class="param-name">Job name mismatch</td><td>Throw <code>Error("Invalid job name")</code> → job marked as failed</td></tr>
+        <tr><td class="param-name">Nodemailer error</td><td>Throw <code>InternalServerError</code> → job retried per BullMQ policy</td></tr>
+        <tr><td class="param-name">completed</td><td>Log success</td></tr>
+        <tr><td class="param-name">failed</td><td>Log <code>"Email processing failed!"</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="doc-section" id="notif-schema">
+    <h2>Queue Job Schema</h2>
+    <p>Jobs are added via <code>addEmailToQueue()</code>. The payload conforms to <code>NotificationDto</code>:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">typescript</span></div>
+      <pre>interface NotificationDto {
+  to: string;               // Recipient email address
+  subject: string;          // Email subject line
+  templateId: string;       // Handlebars template identifier (e.g. "welcome")
+  params: Record&lt;string, any&gt;;  // Template variable substitutions
+}</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">json — example payload</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>{
+  <span class="json-key">"to"</span>: <span class="json-str">"guest@example.com"</span>,
+  <span class="json-key">"subject"</span>: <span class="json-str">"Your Booking Confirmation — The Grand Horizon"</span>,
+  <span class="json-key">"templateId"</span>: <span class="json-str">"welcome"</span>,
+  <span class="json-key">"params"</span>: {
+    <span class="json-key">"name"</span>: <span class="json-str">"Alex"</span>,
+    <span class="json-key">"appName"</span>: <span class="json-str">"Booking App"</span>
+  }
+}</pre>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- DATA MODELS -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <section class="doc-section" id="data-models">
+    <div class="section-eyebrow">Reference</div>
+    <h2>Data Models</h2>
+
+    <h3>hotels (Sequelize / MySQL)</h3>
+    <table class="model-table">
+      <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>INTEGER</td><td>No</td><td>Auto-increment PK</td></tr>
+        <tr><td>name</td><td>VARCHAR</td><td>No</td><td>Hotel display name</td></tr>
+        <tr><td>address</td><td>VARCHAR</td><td>No</td><td>Physical address</td></tr>
+        <tr><td>location</td><td>VARCHAR</td><td>No</td><td>City or region</td></tr>
+        <tr><td>rating</td><td>FLOAT</td><td>Yes</td><td>Average guest rating</td></tr>
+        <tr><td>rating_count</td><td>INTEGER</td><td>Yes</td><td>Total ratings count</td></tr>
+        <tr><td>created_at</td><td>DATETIME</td><td>Yes</td><td>Auto-managed</td></tr>
+        <tr><td>updated_at</td><td>DATETIME</td><td>Yes</td><td>Auto-managed</td></tr>
+        <tr><td>deleted_at</td><td>DATETIME</td><td>Yes</td><td>Soft-delete timestamp</td></tr>
+      </tbody>
+    </table>
+
+    <h3>room_categories (Sequelize / MySQL)</h3>
+    <table class="model-table">
+      <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>INTEGER</td><td>No</td><td>Auto-increment PK</td></tr>
+        <tr><td>hotel_id</td><td>INTEGER</td><td>No</td><td>FK → hotels.id</td></tr>
+        <tr><td>room_type</td><td>ENUM</td><td>Yes</td><td>SINGLE · DOUBLE · FAMILY · DELUXE · SUITE</td></tr>
+        <tr><td>room_no</td><td>INTEGER</td><td>No</td><td>Room number</td></tr>
+        <tr><td>price</td><td>INTEGER</td><td>No</td><td>Base price per night</td></tr>
+        <tr><td>deleted_at</td><td>DATETIME</td><td>Yes</td><td>Soft-delete</td></tr>
+      </tbody>
+    </table>
+
+    <h3>rooms (Sequelize / MySQL)</h3>
+    <table class="model-table">
+      <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>INTEGER</td><td>No</td><td>Auto-increment PK</td></tr>
+        <tr><td>hotel_id</td><td>INTEGER</td><td>No</td><td>FK → hotels.id (CASCADE)</td></tr>
+        <tr><td>room_category_id</td><td>INTEGER</td><td>No</td><td>FK → room_categories.id</td></tr>
+        <tr><td>room_no</td><td>INTEGER</td><td>No</td><td>Room number</td></tr>
+        <tr><td>price</td><td>FLOAT</td><td>No</td><td>Price for this slot</td></tr>
+        <tr><td>date_of_availability</td><td>DATETIME</td><td>No</td><td>Calendar date this slot represents</td></tr>
+        <tr><td>booking_id</td><td>INTEGER</td><td>Yes</td><td>Set when booked</td></tr>
+        <tr><td>deleted_at</td><td>DATETIME</td><td>Yes</td><td>Soft-delete</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Booking (Prisma / MySQL)</h3>
+    <table class="model-table">
+      <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>Int</td><td>No</td><td>Auto-increment PK</td></tr>
+        <tr><td>userId</td><td>Int</td><td>No</td><td>Application user identifier</td></tr>
+        <tr><td>hotelId</td><td>Int</td><td>No</td><td>References HotelService hotel</td></tr>
+        <tr><td>checkInDate</td><td>DateTime</td><td>No</td><td></td></tr>
+        <tr><td>checkOutDate</td><td>DateTime</td><td>No</td><td></td></tr>
+        <tr><td>roomCategoryId</td><td>Int</td><td>No</td><td>References HotelService room category</td></tr>
+        <tr><td>bookingAmount</td><td>Int</td><td>No</td><td>Total cost</td></tr>
+        <tr><td>totalGuests</td><td>Int</td><td>No</td><td>Guest count</td></tr>
+        <tr><td>status</td><td>BookingStatus</td><td>No</td><td>Default: <code>PENDING</code></td></tr>
+        <tr><td>createdAt</td><td>DateTime</td><td>No</td><td><code>now()</code></td></tr>
+        <tr><td>updatedAt</td><td>DateTime</td><td>No</td><td>Auto-update</td></tr>
+      </tbody>
+    </table>
+
+    <h3>IdempotencyKey (Prisma / MySQL)</h3>
+    <table class="model-table">
+      <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>Int</td><td>No</td><td>Auto-increment PK</td></tr>
+        <tr><td>idemKey</td><td>String</td><td>No</td><td>UUID v4, unique</td></tr>
+        <tr><td>bookingId</td><td>Int</td><td>No</td><td>FK → Booking.id, unique (1:1)</td></tr>
+        <tr><td>finalized</td><td>Boolean</td><td>No</td><td>Default: <code>false</code> → <code>true</code> after confirm</td></tr>
+        <tr><td>createdAt</td><td>DateTime</td><td>No</td><td></td></tr>
+        <tr><td>updatedAt</td><td>DateTime</td><td>No</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h3>BookingStatus State Machine</h3>
+    <div class="flow-box">     POST /booking/confirm/:key
+PENDING ─────────────────────────► CONFIRMED
+   │                                   │
+   │ (cancelBooking — not yet exposed) │
+   ▼                                   ▼
+CANCELLED                          CANCELLED</div>
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <span><code>cancelBooking</code> is implemented in <code>booking.repository.ts</code> but no HTTP route is currently registered. It is a candidate for a future endpoint.</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- ENVIRONMENT VARIABLES -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <section class="doc-section" id="env-vars">
+    <h2>Environment Variables</h2>
+
+    <h3>HotelService</h3>
+    <table class="env-table">
+      <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>PORT</td><td>3001</td><td>HTTP server port</td></tr>
+        <tr><td>REDIS_PORT</td><td>6379</td><td>Redis port</td></tr>
+        <tr><td>REDIS_HOST</td><td>localhost</td><td>Redis hostname</td></tr>
+        <tr><td>ROOM_CRON</td><td>0 2 * * *</td><td>Cron expression for room availability extension</td></tr>
+        <tr><td>DB_HOST</td><td>localhost</td><td>MySQL host</td></tr>
+        <tr><td>DB_USER</td><td>root</td><td>MySQL username</td></tr>
+        <tr><td>DB_PASSWORD</td><td>root</td><td>MySQL password</td></tr>
+        <tr><td>DB_NAME</td><td>test_db</td><td>MySQL database name</td></tr>
+      </tbody>
+    </table>
+
+    <h3>BookingService</h3>
+    <table class="env-table">
+      <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>PORT</td><td>3001</td><td>HTTP server port</td></tr>
+        <tr><td>REDIS_SERVER_URL</td><td>redis://localhost:6379</td><td>Full Redis connection URL (Redlock)</td></tr>
+        <tr><td>LOCK_TTL</td><td>5000</td><td>Distributed lock TTL in milliseconds</td></tr>
+        <tr><td>HOTEL_SERVICE_URL</td><td>http://localhost:3002</td><td>Base URL for HotelService HTTP calls</td></tr>
+        <tr><td>DATABASE_URL</td><td>—</td><td>Prisma connection string (MySQL/MariaDB format)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>NotificationService</h3>
+    <table class="env-table">
+      <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>PORT</td><td>3001</td><td>HTTP server port</td></tr>
+        <tr><td>REDIS_PORT</td><td>6379</td><td>Redis port</td></tr>
+        <tr><td>REDIS_HOST</td><td>localhost</td><td>Redis hostname</td></tr>
+        <tr><td>MAIL_USER</td><td>""</td><td>SMTP sender email address</td></tr>
+        <tr><td>MAIL_PASS</td><td>""</td><td>SMTP sender password / app password</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- QUICK REFERENCE -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <section class="doc-section" id="quick-ref">
+    <h2>Quick Reference</h2>
+
+    <h3>HotelService (:3001)</h3>
+    <table class="quick-ref-table">
+      <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="method-badge method-get">GET</span></td><td>/api/v1/ping</td><td>Health check</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/hotels</td><td>Create a hotel</td></tr>
+        <tr><td><span class="method-badge method-get">GET</span></td><td>/api/v1/hotels/getAllHotels</td><td>List all non-deleted hotels</td></tr>
+        <tr><td><span class="method-badge method-get">GET</span></td><td>/api/v1/hotels/:id</td><td>Get hotel by ID</td></tr>
+        <tr><td><span class="method-badge method-delete">DEL</span></td><td>/api/v1/hotels/:id</td><td>Soft-delete hotel</td></tr>
+        <tr><td><span class="method-badge method-patch">PATCH</span></td><td>/api/v1/hotels</td><td>Update hotel name</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/generateRooms</td><td>Enqueue room generation job</td></tr>
+        <tr><td><span class="method-badge method-get">GET</span></td><td>/api/v1/rooms/getAvailableRooms</td><td>Query available rooms</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/rooms/update-rooms-id</td><td>Link rooms to booking</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/scheduler/start</td><td>Start availability cron</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/scheduler/stop</td><td>Stop availability cron</td></tr>
+        <tr><td><span class="method-badge method-get">GET</span></td><td>/api/v1/scheduler/status</td><td>Get cron status</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/scheduler/extend</td><td>Manually extend availability</td></tr>
+      </tbody>
+    </table>
+
+    <h3>BookingService (:3002)</h3>
+    <table class="quick-ref-table">
+      <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="method-badge method-get">GET</span></td><td>/api/v1/ping</td><td>Health check</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/booking</td><td>Create a pending booking (Phase 1)</td></tr>
+        <tr><td><span class="method-badge method-post">POST</span></td><td>/api/v1/booking/confirm/:idempotencyKey</td><td>Confirm booking (Phase 2)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<script>
+  // Tab switching
+  function switchTab(btn, targetId) {
+    const card = btn.closest('.endpoint-body');
+    card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    card.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const target = document.getElementById(targetId);
+    if (target) target.classList.add('active');
+  }
+
+  // Nav active state
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    // Close sidebar on mobile
+    if (window.innerWidth <= 768) {
+      document.getElementById('sidebar').classList.remove('open');
+    }
+  }
+
+  // Hamburger
+  document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  // Copy code
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  // Sidebar search filter
+  document.getElementById('search-input').addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.style.display = (!q || item.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('.nav-section-label').forEach(label => {
+      const section = label.parentElement;
+      const visibleItems = [...section.querySelectorAll('.nav-item')].filter(i => i.style.display !== 'none');
+      label.style.display = visibleItems.length ? '' : 'none';
+    });
+  });
+
+  // Scroll spy
+  const sections = document.querySelectorAll('.doc-section[id]');
+  const navItems = document.querySelectorAll('.nav-item[href]');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => observer.observe(s));
+
+  // API Console
+  (() => {
+    const $ = id => document.getElementById(id);
+
+    // Production gateway configuration.
+    // All browser requests go through the deployed AuthInGo gateway.
+    const GATEWAY_BASE = 'https://airbnb-auth.onrender.com';
+    const SERVICE_BASES = {
+      auth: GATEWAY_BASE,
+      hotel: `${GATEWAY_BASE}/HotelService`,
+      booking: `${GATEWAY_BASE}/BookingService`
+    };
+
+    const endpoints = [
+      ['GET','Auth · Health','/ping','auth',{}],
+      ['GET','Hotel · Health','/api/v1/ping','hotel',{}],
+      ['POST','Hotel · Create hotel','/api/v1/hotels','hotel',{body:{name:'The Grand Horizon',address:'221B Baker Street',location:'London',rating:4.7,ratingCount:1240}}],
+      ['GET','Hotel · List hotels','/api/v1/hotels/getAllHotels','hotel',{}],
+      ['GET','Hotel · Get hotel','/api/v1/hotels/:id','hotel',{path:{id:'1'}}],
+      ['DELETE','Hotel · Delete hotel','/api/v1/hotels/:id','hotel',{path:{id:'1'}}],
+      ['PATCH','Hotel · Update hotel','/api/v1/hotels','hotel',{body:{id:1,name:'Updated Hotel'}}],
+      ['GET','Rooms · Available rooms','/api/v1/rooms/getAvailableRooms','hotel',{query:{roomCategoryId:'3',checkInDate:'2026-10-01',checkOutDate:'2026-10-05'}}],
+      ['POST','Rooms · Update rooms','/api/v1/rooms/update-rooms-id','hotel',{body:{roomIds:[],bookingId:1}}],
+      ['POST','Rooms · Generate rooms','/api/v1/generateRooms','hotel',{body:{}}],
+      ['POST','Scheduler · Start','/api/v1/scheduler/start','hotel',{body:{}}],
+      ['POST','Scheduler · Stop','/api/v1/scheduler/stop','hotel',{body:{}}],
+      ['GET','Scheduler · Status','/api/v1/scheduler/status','hotel',{}],
+      ['POST','Scheduler · Extend','/api/v1/scheduler/extend','hotel',{body:{}}],
+      ['GET','Booking · Health','/api/v1/ping','booking',{}],
+      ['POST','Booking · Create','/api/v1/booking','booking',{body:{}}],
+      ['POST','Booking · Confirm','/api/v1/booking/confirm/:idempotencyKey','booking',{path:{idempotencyKey:''}}]
+    ];
+    const select=$('console-endpoint'), method=$('console-method'), url=$('console-url'), fields=$('console-fields');
+    endpoints.forEach((e,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${e[0]}  ${e[1]}`; select.appendChild(o); });
+    function input(label,key,value,kind){ return `<label class="console-label">${label}</label><textarea class="console-textarea" data-kind="${kind}" data-key="${key}" placeholder="${key}">${value||''}</textarea>`; }
+    function render(){
+      const e=endpoints[+select.value], [m,,path,service,meta]=e;
+      method.innerHTML=`<option>${m}</option>`;
+      url.value=(SERVICE_BASES[service]+path).replace(/\/$/,'');
+      let html='';
+      (path.match(/:([A-Za-z0-9_]+)/g)||[]).forEach(k=>html+=`<label class="console-label">${k.slice(1)} (path)</label><input class="console-input" data-kind="path" data-key="${k.slice(1)}" value="${meta.path?.[k.slice(1)]||''}">`);
+      if(Object.keys(meta.query||{}).length) html+=input('Query parameters (JSON)','query',JSON.stringify(meta.query,null,2),'query');
+      if(m!=='GET' && m!=='DELETE') html+=input('Request body (JSON)','body',JSON.stringify(meta.body||{},null,2),'body');
+      fields.innerHTML=html;
+    }
+    select.addEventListener('change',render); render();
+    $('console-toggle').addEventListener('click',()=>{ $('console-content').classList.toggle('console-hidden'); $('console-toggle').textContent=$('console-content').classList.contains('console-hidden')?'＋':'×'; });
+    function showConsoleResult(status,message,isError=false){const box=$('console-response');box.classList.remove('console-hidden','success','error');box.classList.add(isError?'error':'success');$('console-status').textContent=status;$('console-result').textContent=message;}
+    $('console-send').addEventListener('click',async()=>{
+      const e=endpoints[+select.value], m=e[0]; let target=url.value.trim();
+      if(!target) target=SERVICE_BASES[e[3]]+e[2];
+      fields.querySelectorAll('[data-kind="path"]').forEach(i=>target=target.replace(':'+i.dataset.key,encodeURIComponent(i.value)));
+      if(/\/:[^/?#]+/.test(new URL(target, window.location.origin).pathname)){showConsoleResult('Request error','Please fill in all path parameters before sending.',true);return;}
+      let query={},body;
+      let invalidJson=false;
+      fields.querySelectorAll('[data-kind="query"],[data-kind="body"]').forEach(i=>{try{const v=JSON.parse(i.value||'{}');if(i.dataset.kind==='query')query=v;else body=v;}catch{invalidJson=true;} });
+      if(invalidJson){showConsoleResult('Request error','Please enter valid JSON in the query/body fields.',true);return;}
+      const qs=new URLSearchParams(query).toString(); if(qs)target+='?'+qs;
+      let headers; try{headers=JSON.parse($('console-headers').value||'{}');}catch{showConsoleResult('Request error','Headers must be valid JSON.',true);return;}
+      // Avoid unnecessary CORS preflight requests for GET/DELETE.
+      // A JSON Content-Type on requests without a body is not needed and
+      // can trigger an OPTIONS request that some backends do not handle.
+      if(body===undefined){
+        Object.keys(headers).forEach(k=>{if(k.toLowerCase()==='content-type') delete headers[k];});
+      } else if(!Object.keys(headers).some(k=>k.toLowerCase()==='content-type')){
+        headers['Content-Type']='application/json';
+      }
+      const btn=$('console-send');btn.disabled=true;btn.textContent='Sending…';$('console-response').classList.remove('console-hidden');$('console-response').classList.remove('success','error');
+      const started=performance.now();
+      try {
+        const r = await fetch(target, {
+          method: m,
+          headers,
+          body: body === undefined ? undefined : JSON.stringify(body)
+        });
+
+        // Always display the response body exactly as returned by the backend.
+        // This includes application errors such as { success: false, error: "..." }.
+        const raw = await r.text();
+        const responseBody = raw || '(empty response)';
+
+        $('console-status').textContent = `${r.status} ${r.statusText} · ${Math.round(performance.now()-started)}ms`;
+        $('console-result').textContent = responseBody;
+        $('console-response').classList.add(r.ok ? 'success' : 'error');
+
+        // Keep backend error responses untouched; do not replace them with a
+        // generic "Request failed" message.
+        if (!r.ok) $('console-status').textContent += ' · Backend Error';
+      } catch(err) {
+        // This block runs only when the browser cannot obtain an HTTP response
+        // (for example CORS, DNS, connection, or preflight failure). There is
+        // no backend response body available in this case.
+        $('console-status').textContent = 'No HTTP response';
+        $('console-result').textContent = `${err.message || 'Failed to fetch'}\n\nRequest URL: ${target}\n\nNo response body was received from the backend.`;
+        $('console-response').classList.add('error');
+      }
+      finally{btn.disabled=false;btn.textContent='Send Request ↗';}
+    });
+  })();
+
+</script>
+
+<script>
+/* ── PREMIUM MOTION BEHAVIOUR ── */
+(() => {
+  const root=document.documentElement;
+  const progress=document.createElement('div');
+  progress.id='scroll-progress';
+  document.body.prepend(progress);
+
+  const updateProgress=()=>{
+    const max=document.documentElement.scrollHeight-window.innerHeight;
+    progress.style.width=(max>0?(window.scrollY/max)*100:0)+'%';
+  };
+  window.addEventListener('scroll',updateProgress,{passive:true});
+  updateProgress();
+
+  const targets=document.querySelectorAll(
+    '.doc-section,.endpoint-card,.info-card,.flow-box,.alert,.code-block,.model-table,.params-table'
+  );
+  targets.forEach((el,i)=>{
+    el.classList.add('reveal');
+    if(i%5===1) el.style.setProperty('--reveal-delay','55ms');
+    if(i%5===2) el.style.setProperty('--reveal-delay','90ms');
+  });
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },{threshold:.12,rootMargin:'0px 0px -35px'});
+    targets.forEach(el=>observer.observe(el));
+  }else targets.forEach(el=>el.classList.add('is-visible'));
+
+  window.addEventListener('pointermove',e=>{
+    root.style.setProperty('--mx',e.clientX+'px');
+    root.style.setProperty('--my',e.clientY+'px');
+  },{passive:true});
+})();
+</script>
+
+
+<script>
+/* ── THEME SWITCHER ── */
+(() => {
+  const root = document.documentElement;
+  const button = document.getElementById('theme-toggle');
+  const icon = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
+  if (!button) return;
+
+  const applyTheme = (theme) => {
+    root.setAttribute('data-theme', theme);
+    const light = theme === 'light';
+    icon.textContent = light ? '🌙' : '☀️';
+    label.textContent = light ? 'Dark' : 'Light';
+    button.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
+    button.setAttribute('aria-pressed', String(light));
+    localStorage.setItem('airbnb-docs-theme', theme);
+  };
+  const saved = localStorage.getItem('airbnb-docs-theme');
+  applyTheme(saved === 'light' ? 'light' : 'dark');
+  button.addEventListener('click', () => {
+    applyTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  });
+})();
+</script>
+
+</body>
+</html>
