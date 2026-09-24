@@ -866,7 +866,7 @@ body::before{
     <label class="console-label" for="console-headers">Headers (JSON)</label>
     <textarea class="console-textarea" id="console-headers">{ "Content-Type": "application/json" }</textarea>
     <button class="console-send" id="console-send">Send Request ↗</button>
-    <div class="console-hint">Requests run from your browser. Set the correct service base URL and ensure CORS is enabled on your backend.</div>
+    <div class="console-hint">Requests run from your browser. For protected AuthInGo routes, add <code>Authorization: Bearer &lt;JWT&gt;</code> in Headers. Set the correct service base URL and ensure CORS is enabled on your backend.</div>
     <div class="console-response console-hidden" id="console-response">
       <div class="console-response-head"><span>Response</span><span id="console-status"></span></div>
       <pre id="console-result"></pre>
@@ -899,6 +899,15 @@ body::before{
     </div>
 
     <div class="nav-section">
+      <div class="nav-section-label">AuthInGo · Gateway</div>
+      <a class="nav-item" href="#auth-signup" onclick="setActive(this)">Signup <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#auth-login" onclick="setActive(this)">Login <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#auth-profile" onclick="setActive(this)">Profile <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#auth-users" onclick="setActive(this)">All Users <span class="nav-badge badge-get">GET</span></a>
+      <a class="nav-item" href="#auth-roles" onclick="setActive(this)">Roles & RBAC</a>
+    </div>
+
+    <div class="nav-section">
       <div class="nav-section-label">Hotel Service · :3001</div>
       <a class="nav-item" href="#hotel-health" onclick="setActive(this)">Health Check <span class="nav-badge badge-get">GET</span></a>
       <a class="nav-item" href="#hotel-create" onclick="setActive(this)">Create Hotel <span class="nav-badge badge-post">POST</span></a>
@@ -928,6 +937,7 @@ body::before{
       <a class="nav-item" href="#booking-health" onclick="setActive(this)">Health Check <span class="nav-badge badge-get">GET</span></a>
       <a class="nav-item" href="#booking-create" onclick="setActive(this)">Create Booking <span class="nav-badge badge-post">POST</span></a>
       <a class="nav-item" href="#booking-confirm" onclick="setActive(this)">Confirm Booking <span class="nav-badge badge-post">POST</span></a>
+      <a class="nav-item" href="#booking-list" onclick="setActive(this)">User Bookings <span class="nav-badge badge-get">GET</span></a>
     </div>
 
     <div class="nav-section">
@@ -972,7 +982,7 @@ body::before{
       </div>
       <div class="info-card">
         <div class="info-card-label">Auth</div>
-        <div class="info-card-value">None (v1)</div>
+        <div class="info-card-value">JWT where required</div>
       </div>
       <div class="info-card">
         <div class="info-card-label">Response</div>
@@ -1069,7 +1079,7 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
 
     <div class="alert alert-info">
       <span class="alert-icon">ℹ️</span>
-      <span>No authentication is required in v1. All endpoints are publicly accessible. No <code>Authorization</code> header is needed.</span>
+      <span>Hotel and Booking v1 endpoints are public. Auth profile/user-list and admin role-assignment routes require a JWT <code>Authorization: Bearer &lt;token&gt;</code> header.</span>
     </div>
   </section>
 
@@ -1122,6 +1132,121 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
   <div class="divider"></div>
 
   <!-- ═══════════════════════════════════════ -->
+  <!-- AUTHINGO / AUTH SERVICE -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <section class="doc-section" id="auth-signup">
+    <div class="section-eyebrow">AuthInGo · User</div>
+    <h2>Signup</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/signup</span>
+        <span class="endpoint-desc">Creates a user and returns the created user result with a JWT token.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'as-body')">Body</button>
+          <button class="tab-btn" onclick="switchTab(this, 'as-resp')">Response</button>
+        </div>
+        <div class="tab-content active" id="as-body">
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Constraint</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">username</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>min 3 chars</td></tr>
+              <tr><td class="param-name">email</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>valid email</td></tr>
+              <tr><td class="param-name">password</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>min 8 chars</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block"><div class="code-header"><span class="code-lang">json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>{ <span class="json-key">"username"</span>: <span class="json-str">"alex"</span>, <span class="json-key">"email"</span>: <span class="json-str">"alex@example.com"</span>, <span class="json-key">"password"</span>: <span class="json-str">"password123"</span> }</pre></div>
+        </div>
+        <div class="tab-content" id="as-resp">
+          <div class="code-block"><div class="code-header"><span class="code-lang">json — 200 OK</span></div>
+          <pre>{ <span class="json-key">"status"</span>: <span class="json-str">"success"</span>, <span class="json-key">"message"</span>: <span class="json-str">"User Created Successfully"</span>, <span class="json-key">"data"</span>: { <span class="json-key">"User"</span>: { ... }, <span class="json-key">"JwtToken"</span>: <span class="json-str">"&lt;jwt&gt;"</span> } }</pre></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="auth-login">
+    <div class="section-eyebrow">AuthInGo · User</div>
+    <h2>Login</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/login</span>
+        <span class="endpoint-desc">Authenticates a user and returns a JWT token.</span>
+      </div>
+      <div class="endpoint-body">
+        <table class="params-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Constraint</th></tr></thead>
+          <tbody>
+            <tr><td class="param-name">email</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>valid email</td></tr>
+            <tr><td class="param-name">password</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>min 8 chars</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block"><div class="code-header"><span class="code-lang">json — example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre>{ <span class="json-key">"email"</span>: <span class="json-str">"alex@example.com"</span>, <span class="json-key">"password"</span>: <span class="json-str">"password123"</span> }</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="auth-profile">
+    <div class="section-eyebrow">AuthInGo · Protected</div>
+    <h2>Profile</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/profile</span>
+        <span class="endpoint-desc">Returns the authenticated user's profile.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="alert alert-info"><span class="alert-icon">🔐</span><span>Requires <code>Authorization: Bearer &lt;JWT&gt;</code>.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="auth-users">
+    <div class="section-eyebrow">AuthInGo · Protected</div>
+    <h2>All Users</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/all</span>
+        <span class="endpoint-desc">Returns all users. Requires JWT authentication.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="alert alert-info"><span class="alert-icon">🔐</span><span>Requires <code>Authorization: Bearer &lt;JWT&gt;</code>.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="doc-section" id="auth-roles">
+    <div class="section-eyebrow">AuthInGo · RBAC</div>
+    <h2>Roles & Permissions</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-body">
+        <table class="quick-ref-table">
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Payload</th><th>Auth</th></tr></thead>
+          <tbody>
+            <tr><td>GET</td><td>/roles/{id}</td><td>—</td><td>Public</td></tr>
+            <tr><td>GET</td><td>/roles</td><td>—</td><td>Public</td></tr>
+            <tr><td>POST</td><td>/createRole</td><td>{ name, description }</td><td>Public</td></tr>
+            <tr><td>PATCH</td><td>/roles/{id}</td><td>{ name?, description? }</td><td>Public</td></tr>
+            <tr><td>GET</td><td>/roleByName</td><td>JSON body: { name }</td><td>Public</td></tr>
+            <tr><td>GET</td><td>/role/{id}/permissions</td><td>—</td><td>Public</td></tr>
+            <tr><td>POST</td><td>/assignpermissionToRole</td><td>{ id, permissionId }</td><td>Public</td></tr>
+            <tr><td>DELETE</td><td>/removePermissionFromRole</td><td>{ id, permissionId }</td><td>Public</td></tr>
+            <tr><td>POST</td><td>/roles/{userId}/assign/{roleId}</td><td>—</td><td>JWT + admin role</td></tr>
+            <tr><td>DELETE</td><td>/roles/{id}</td><td>—</td><td>Public</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
   <!-- HOTEL SERVICE -->
   <!-- ═══════════════════════════════════════ -->
   <section class="doc-section" id="hotel-health">
@@ -1171,8 +1296,10 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
               <tr><td class="param-name">name</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>Hotel name (min 1 char)</td></tr>
               <tr><td class="param-name">address</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>Physical address</td></tr>
               <tr><td class="param-name">location</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>City / region string</td></tr>
-              <tr><td class="param-name">rating</td><td class="param-type">number (float)</td><td><span class="req-badge req-no">No</span></td><td>Average star rating 0–5</td></tr>
-              <tr><td class="param-name">ratingCount</td><td class="param-type">number (int)</td><td><span class="req-badge req-no">No</span></td><td>Number of ratings received</td></tr>
+              <tr><td class="param-name">price</td><td class="param-type">number</td><td><span class="req-badge req-yes">Yes</span></td><td>Base hotel price</td></tr>
+              <tr><td class="param-name">roomType</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>Room type; <code>SINGLE</code>, <code>DOUBLE</code>, <code>FAMILY</code>, <code>DELUXE</code>, <code>SUITE</code></td></tr>
+              <tr><td class="param-name">rating</td><td class="param-type">number</td><td><span class="req-badge req-no">No</span></td><td>Optional rating</td></tr>
+              <tr><td class="param-name">ratingCount</td><td class="param-type">number</td><td><span class="req-badge req-no">No</span></td><td>Optional rating count</td></tr>
             </tbody>
           </table>
           <div class="code-block">
@@ -1181,6 +1308,8 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
   <span class="json-key">"name"</span>: <span class="json-str">"The Grand Horizon"</span>,
   <span class="json-key">"address"</span>: <span class="json-str">"221B Baker Street, London, UK"</span>,
   <span class="json-key">"location"</span>: <span class="json-str">"London"</span>,
+  <span class="json-key">"price"</span>: <span class="json-num">1400</span>,
+  <span class="json-key">"roomType"</span>: <span class="json-str">"DELUXE"</span>,
   <span class="json-key">"rating"</span>: <span class="json-num">4.7</span>,
   <span class="json-key">"ratingCount"</span>: <span class="json-num">1240</span>
 }</pre>
@@ -1214,6 +1343,10 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
           </div>
         </div>
       </div>
+    </div>
+    <div class="alert alert-warn" style="margin-top:12px;">
+      <span class="alert-icon">⚠️</span>
+      <span><code>hotelSchema</code> currently validates <code>name</code>, <code>address</code>, <code>location</code>, <code>price</code>, <code>roomType</code>, <code>rating</code>, and <code>ratingCount</code>. The Sequelize model/DTO also declares <code>hostId</code>, but the current Zod schema does not accept it. This is a backend schema mismatch to fix separately; the console below follows the current validator.</span>
     </div>
   </section>
 
@@ -1348,8 +1481,8 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
     <div class="endpoint-card">
       <div class="endpoint-header">
         <span class="method-badge method-patch">PATCH</span>
-        <span class="endpoint-path">/api/v1/hotels</span>
-        <span class="endpoint-desc">Updates the <code>name</code> of a hotel identified by <code>id</code> in the request body.</span>
+        <span class="endpoint-path">/api/v1/hotels/<span class="param">:id</span></span>
+        <span class="endpoint-desc">Updates a hotel by path ID. All update fields are optional.</span>
       </div>
       <div class="endpoint-body">
         <div class="tabs">
@@ -1361,13 +1494,20 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
           <table class="params-table">
             <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
             <tbody>
-              <tr><td class="param-name">id</td><td class="param-type">number (int)</td><td><span class="req-badge req-yes">Yes</span></td><td>Hotel's primary key</td></tr>
-              <tr><td class="param-name">name</td><td class="param-type">string</td><td><span class="req-badge req-yes">Yes</span></td><td>New name to assign</td></tr>
+              <tr><td class="param-name">name</td><td class="param-type">string</td><td><span class="req-badge req-no">No</span></td><td>Updated hotel name</td></tr>
+              <tr><td class="param-name">address</td><td class="param-type">string</td><td><span class="req-badge req-no">No</span></td><td>Updated physical address</td></tr>
+              <tr><td class="param-name">location</td><td class="param-type">string</td><td><span class="req-badge req-no">No</span></td><td>Updated location</td></tr>
+              <tr><td class="param-name">price</td><td class="param-type">number</td><td><span class="req-badge req-no">No</span></td><td>Updated price</td></tr>
+              <tr><td class="param-name">room_type</td><td class="param-type">RoomType</td><td><span class="req-badge req-no">No</span></td><td>Updated room type</td></tr>
             </tbody>
           </table>
           <div class="code-block">
             <div class="code-header"><span class="code-lang">json — example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-            <pre>{ <span class="json-key">"id"</span>: <span class="json-num">1</span>, <span class="json-key">"name"</span>: <span class="json-str">"The Grand Horizon — Renovated"</span> }</pre>
+            <pre>{
+  <span class="json-key">"name"</span>: <span class="json-str">"The Grand Horizon — Renovated"</span>,
+  <span class="json-key">"price"</span>: <span class="json-num">1600</span>,
+  <span class="json-key">"room_type"</span>: <span class="json-str">"DELUXE"</span>
+}</pre>
           </div>
         </div>
         <div class="tab-content" id="hp-resp">
@@ -1774,6 +1914,41 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
     </div>
   </section>
 
+  <!-- GET ALL BOOKINGS -->
+  <section class="doc-section" id="booking-list">
+    <h2>Get User Bookings</h2>
+    <div class="endpoint-card">
+      <div class="endpoint-header">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/api/v1/booking/getAllBookings/<span class="param">:id</span></span>
+        <span class="endpoint-desc">Returns all bookings for the supplied user ID.</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this, 'bl-params')">Path Params</button>
+          <button class="tab-btn" onclick="switchTab(this, 'bl-resp')">Response</button>
+        </div>
+        <div class="tab-content active" id="bl-params">
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">id</td><td class="param-type">number</td><td><span class="req-badge req-yes">Yes</span></td><td>User ID passed to <code>getAllBookingsService()</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-content" id="bl-resp">
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json — 200 OK</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>{
+  <span class="json-key">"message"</span>: <span class="json-str">"Booking fetched successfully!"</span>,
+  <span class="json-key">"data"</span>: [],
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="divider"></div>
 
   <!-- ═══════════════════════════════════════ -->
@@ -1855,6 +2030,9 @@ Client ← { bookingId, status: "CONFIRMED" }</pre>
         <tr><td>name</td><td>VARCHAR</td><td>No</td><td>Hotel display name</td></tr>
         <tr><td>address</td><td>VARCHAR</td><td>No</td><td>Physical address</td></tr>
         <tr><td>location</td><td>VARCHAR</td><td>No</td><td>City or region</td></tr>
+        <tr><td>price</td><td>INTEGER</td><td>No</td><td>Base hotel price</td></tr>
+        <tr><td>room_type</td><td>ENUM</td><td>Yes</td><td>SINGLE · DOUBLE · FAMILY · DELUXE · SUITE</td></tr>
+        <tr><td>host_id</td><td>INTEGER</td><td>No</td><td>Host/user identifier</td></tr>
         <tr><td>rating</td><td>FLOAT</td><td>Yes</td><td>Average guest rating</td></tr>
         <tr><td>rating_count</td><td>INTEGER</td><td>Yes</td><td>Total ratings count</td></tr>
         <tr><td>created_at</td><td>DATETIME</td><td>Yes</td><td>Auto-managed</td></tr>
@@ -2101,22 +2279,36 @@ CANCELLED                          CANCELLED</div>
 
     const endpoints = [
       ['GET','Auth · Health','/ping','auth',{}],
+      ['POST','Auth · Signup','/signup','auth',{body:{username:'alex',email:'alex@example.com',password:'password123'}}],
+      ['POST','Auth · Login','/login','auth',{body:{email:'alex@example.com',password:'password123'}}],
+      ['GET','Auth · Profile','/profile','auth',{}],
+      ['GET','Auth · All users','/all','auth',{}],
+      ['GET','Auth · Roles','/roles','auth',{}],
+      ['POST','Auth · Create role','/createRole','auth',{body:{name:'manager',description:'Hotel manager'}}],
+      ['PATCH','Auth · Update role','/roles/:id','auth',{path:{id:'1'},body:{name:'manager',description:'Updated description'}}],
+      ['GET','Auth · Role by name','/roleByName','auth',{body:{name:'manager'}}],
+      ['GET','Auth · Role permissions','/role/:id/permissions','auth',{path:{id:'1'}}],
+      ['POST','Auth · Assign permission','/assignpermissionToRole','auth',{body:{id:1,permissionId:2}}],
+      ['DELETE','Auth · Remove permission','/removePermissionFromRole','auth',{body:{id:1,permissionId:2}}],
+      ['POST','Auth · Assign role','/roles/:userId/assign/:roleId','auth',{path:{userId:'1',roleId:'2'}}],
+      ['DELETE','Auth · Delete role','/roles/:id','auth',{path:{id:'1'}}],
       ['GET','Hotel · Health','/api/v1/ping','hotel',{}],
-      ['POST','Hotel · Create hotel','/api/v1/hotels','hotel',{body:{name:'The Grand Horizon',address:'221B Baker Street',location:'London',rating:4.7,ratingCount:1240}}],
+      ['POST','Hotel · Create hotel','/api/v1/hotels','hotel',{body:{name:'The Grand Horizon',address:'221B Baker Street',location:'London',price:1400,roomType:'DELUXE',rating:4.7,ratingCount:1240}}],
       ['GET','Hotel · List hotels','/api/v1/hotels/getAllHotels','hotel',{}],
       ['GET','Hotel · Get hotel','/api/v1/hotels/:id','hotel',{path:{id:'1'}}],
       ['DELETE','Hotel · Delete hotel','/api/v1/hotels/:id','hotel',{path:{id:'1'}}],
-      ['PATCH','Hotel · Update hotel','/api/v1/hotels','hotel',{body:{id:1,name:'Updated Hotel'}}],
+      ['PATCH','Hotel · Update hotel','/api/v1/hotels/:id','hotel',{path:{id:'1'},body:{name:'Updated Hotel',price:1600,room_type:'DELUXE'}}],
       ['GET','Rooms · Available rooms','/api/v1/rooms/getAvailableRooms','hotel',{query:{roomCategoryId:'3',checkInDate:'2026-10-01',checkOutDate:'2026-10-05'}}],
       ['POST','Rooms · Update rooms','/api/v1/rooms/update-rooms-id','hotel',{body:{roomIds:[],bookingId:1}}],
-      ['POST','Rooms · Generate rooms','/api/v1/generateRooms','hotel',{body:{}}],
+      ['POST','Rooms · Generate rooms','/api/v1/generateRooms','hotel',{body:{roomCategoryId:3,startDate:'2026-10-01T00:00:00.000Z',endDate:'2026-10-05T00:00:00.000Z',priceOverride:175,batchSize:50}}],
       ['POST','Scheduler · Start','/api/v1/scheduler/start','hotel',{body:{}}],
       ['POST','Scheduler · Stop','/api/v1/scheduler/stop','hotel',{body:{}}],
       ['GET','Scheduler · Status','/api/v1/scheduler/status','hotel',{}],
       ['POST','Scheduler · Extend','/api/v1/scheduler/extend','hotel',{body:{}}],
       ['GET','Booking · Health','/api/v1/ping','booking',{}],
-      ['POST','Booking · Create','/api/v1/booking','booking',{body:{}}],
-      ['POST','Booking · Confirm','/api/v1/booking/confirm/:idempotencyKey','booking',{path:{idempotencyKey:''}}]
+      ['POST','Booking · Create','/api/v1/booking','booking',{body:{userId:1,hotelId:1,bookingAmount:2800,totalGuests:2,checkInDate:'2026-10-01T14:00:00.000Z',checkOutDate:'2026-10-03T11:00:00.000Z',roomCategoryId:1}}],
+      ['POST','Booking · Confirm','/api/v1/booking/confirm/:idempotencyKey','booking',{path:{idempotencyKey:''}}],
+      ['GET','Booking · User bookings','/api/v1/booking/getAllBookings/:id','booking',{path:{id:'1'}}],
     ];
     const select=$('console-endpoint'), method=$('console-method'), url=$('console-url'), fields=$('console-fields');
     endpoints.forEach((e,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${e[0]}  ${e[1]}`; select.appendChild(o); });
